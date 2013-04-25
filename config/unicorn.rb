@@ -16,6 +16,10 @@ stdout_path UNICORN_STDOUT
 
 ENV['BUNDLE_GEMFILE'] = File.join(CURRENT, 'Gemfile')
 
+if GC.respond_to? :copy_on_write_friendly=
+  GC.copy_on_write_friendly = true 
+end
+
 before_fork do |server, worker|
   # When the signal is sent to the old server process to start up a new
   # master process with the new code release, the old server's pidfile
