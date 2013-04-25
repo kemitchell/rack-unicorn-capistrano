@@ -14,14 +14,24 @@ set :scm, :git
 set :repository, 'git://github.com/kemitchell/rack-unicorn-capistrano.git'
 set :branch, 'master'
 
-# specify the server address like so:
-# $ WEB_SERVER=10.10.10.1 cap deploy
+# In BASH-like shells, specify the server address like so:
+#
+#   $ WEB_SERVER=10.10.10.1 cap deploy
+#
 server ENV['WEB_SERVER'], :app, :web, :db, :primary => true
 
 require './config/deployment_paths.rb'
 set :deploy_to, DEPLOY_TO
 
 after 'deploy:restart', 'deploy:cleanup'
+
+# The command to start the Unicorn server
+UNICORN = <<-COMMAND.gsub(/\s+/, ' ')
+  bundle exec unicorn
+    --daemonize
+    --env production
+    --config-file config/unicorn.rb
+COMMAND
 
 namespace :deploy do
   task :restart do
@@ -36,18 +46,12 @@ namespace :deploy do
   end
 
   task :start do
-    # Start production Unicorn as a daemon with configuration.
-    run <<-COMMAND.gsub(/\s+/, ' ')
-      cd #{current_path} ;
-      bundle exec unicorn
-        --env production
-        --config-file config/unicorn.rb
-        --daemonize
-    COMMAND
+    # Start production Unicorn
+    run "cd #{current_path} ; #{UNICORN}"
   end
 
   task :stop do
-    # Shut down the Unicorn server.
+    # Shut down the Unicorn server
     run "kill -s QUIT `cat #{UNICORN_PID}`"
   end
 end
