@@ -12,7 +12,7 @@ set :ssh_options, { :forward_agent => true }
 
 set :scm, :git
 set :repository, 'git://github.com/kemitchell/rack-unicorn-capistrano.git'
-set :branch, 'master'
+set :branch, 'ruby-2.0.0'
 
 # In BASH-like shells, specify the server address like so:
 #
